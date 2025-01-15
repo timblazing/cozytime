@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  video-player:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./videos:/videos
+    environment:
+      - PORT=3000
+      - VIDEOS_DIR=/videos
