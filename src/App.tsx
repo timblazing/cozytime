@@ -22,11 +22,11 @@ function App() {
         const links = Array.from(doc.querySelectorAll('a'));
         const videoFiles = links
           .map(link => link.getAttribute('href')?.replace('/videos/', ''))
-          .filter(filename => filename && filename.toLowerCase().match(/\.(mp4|webm|mov)$/i))
+          .filter((filename): filename is string => !!filename && /\.(mp4|webm|mov)$/i.test(filename.toLowerCase()))
           .map((filename, index) => ({
             id: String(index + 1),
             title: filename ? filename.replace(/\.[^/.]+$/, '') : 'Unknown',
-            path: filename || ''
+            path: filename
           }));
         setVideos(videoFiles);
       } catch (error) {

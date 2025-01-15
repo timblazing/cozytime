@@ -25,7 +25,7 @@ app.use('/thumbnails', express.static(THUMBNAILS_DIR));
 app.get('/videos', async (req, res) => {
   try {
     const files = await readdir(VIDEOS_DIR);
-    const videoFiles = files.filter(file => file.match(/\.(mp4|webm|mov)$/i));
+    const videoFiles = files.filter(file => file.match(/\.(mp4|webm|mov)$/i) && !file.startsWith('.'));
     const videoLinks = videoFiles.map(file => `<a href="/videos/${file}">${file}</a>`).join('');
     res.send(`<h1>Available Videos</h1><ul>${videoLinks}</ul>`);
   } catch (error) {
@@ -52,7 +52,7 @@ app.get('/videos/:filename', (req, res) => {
 app.get('/thumbnail/:videoName', (req, res) => {
   const videoName = req.params.videoName;
   const videoPath = join(VIDEOS_DIR, videoName);
-  const thumbnailPath = join(THUMBNAILS_DIR, `${videoName.replace(/\.(mp4|webm|mov)$/i, '.jpg')}`);
+  const thumbnailPath = join(THUMBNAILS_DIR, `public/thumbnails/${videoName.replace(/\.(mp4|webm|mov)$/i, '.jpg')}`);
 
   // Check if thumbnail already exists
   if (fs.existsSync(thumbnailPath)) {
