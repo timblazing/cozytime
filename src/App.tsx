@@ -43,7 +43,8 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-purple-300 text-white flex items-center justify-center">
+      <div className="min-h-screen background: rgb(88,28,135);
+background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%); text-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
       </div>
     );
@@ -51,7 +52,8 @@ function App() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-purple-300 text-white flex items-center justify-center">
+      <div className="min-h-screen background: rgb(88,28,135);
+background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%); text-white flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-400 text-xl">{error}</p>
           <button 
@@ -66,7 +68,8 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-purple-300 text-white p-4 md:p-8">
+    <div className="min-h-screen background: rgb(88,28,135);
+background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%); text-white p-4 md:p-8">
 
       {selectedVideo && (
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
