@@ -60,10 +60,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4 md:p-8">
-      <h1 className="text-3xl font-bold mb-8 flex items-center gap-2">
-        <Film className="w-8 h-8" />
-        Video Player
-      </h1>
 
       {selectedVideo && (
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">

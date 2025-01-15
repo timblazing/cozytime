@@ -2,6 +2,7 @@ import express from 'express';
 import { readdir, mkdir } from 'fs/promises';
 import { join } from 'path';
 import cors from 'cors';
+import { access, constants } from 'fs/promises';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,7 @@ app.use('/videos', express.static(VIDEOS_DIR));
 // API endpoints
 app.get('/api/videos', async (req, res) => {
   try {
+    await access(VIDEOS_DIR, constants.F_OK);
     const files = await readdir(VIDEOS_DIR);
     const videos = files
       .filter(file => file.match(/\.(mp4|webm|mov)$/i))
@@ -28,10 +30,7 @@ app.get('/api/videos', async (req, res) => {
         title: file.replace(/\.[^/.]+$/, ''),
         path: file
       }));
-    
-    // Always return an array, even if empty
-    res.json(videos || []);
-    
+    res.json(videos);
   } catch (error) {
     console.error('Error reading videos directory:', error);
     res.json([]);

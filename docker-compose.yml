@@ -4,9 +4,9 @@ services:
   video-player:
     build: .
     ports:
-      - "3000:3000"
+      - "3005:3000"
     volumes:
-      - ./videos:/videos
+      - /home/clay/1TB/YOUTUBE:/videos
     environment:
-      - PORT=3000
+      - PORT=3005
       - VIDEOS_DIR=/videos
