@@ -34,6 +34,20 @@ app.get('/videos', async (req, res) => {
   }
 });
 
+// Serve individual video files
+app.get('/videos/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = join(VIDEOS_DIR, filename);
+  
+  fs.access(filePath, fs.constants.R_OK, (err) => {
+    if (err) {
+      console.error('Error accessing video file:', filePath, err);
+      return res.status(404).send('Video not found');
+    }
+    res.sendFile(filePath);
+  });
+});
+
 // Endpoint to generate and serve video thumbnails
 app.get('/thumbnail/:videoName', (req, res) => {
   const videoName = req.params.videoName;
@@ -47,7 +61,6 @@ app.get('/thumbnail/:videoName', (req, res) => {
   }
 
   ffmpeg(videoPath)
-    .seekInput(20)
     .frames(1)
     .output(thumbnailPath)
     .on('end', () => {
