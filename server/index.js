@@ -87,6 +87,8 @@ app.get('/thumbnail/:videoName', (req, res) => {
 // Endpoint to trigger thumbnail generation
 app.use(express.json());
 
+app.use(express.json());
+
 app.post('/download', async (req, res) => {
   const { url } = req.body;
   if (!url) {
