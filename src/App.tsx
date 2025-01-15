@@ -109,7 +109,22 @@ function App() {
                 />
                 <button
                   className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={() => console.log('Download button clicked with URL:', youtubeUrl)}
+                  onClick={async () => {
+                    const response = await fetch('/download', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ url: youtubeUrl }),
+                    });
+                    if (response.ok) {
+                      console.log('Download initiated');
+                      // Optionally provide feedback to the user
+                    } else {
+                      console.error('Download failed');
+                      // Optionally handle the error
+                    }
+                  }}
                 >
                   Download
                 </button>

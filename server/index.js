@@ -85,6 +85,39 @@ app.get('/thumbnail/:videoName', (req, res) => {
 });
 
 // Endpoint to trigger thumbnail generation
+app.use(express.json());
+
+app.post('/download', async (req, res) => {
+  const { url } = req.body;
+  if (!url) {
+    return res.status(400).send('No YouTube URL provided');
+  }
+
+  const videoId = new URL(url).searchParams.get('v');
+  const outputPath = join(VIDEOS_DIR, `${videoId}.mp4`);
+
+  console.log(`Downloading video from: ${url} to ${outputPath}`);
+
+  try {
+    const command = `yt-dlp -f 'bestvideo[height<=720]+bestaudio/best[height<=720]' -o '${outputPath}' ${url}`;
+    const { exec } = await import('child_process');
+
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        return res.status(500).send(`Download failed: ${stderr}`);
+      }
+      console.log(`stdout: ${stdout}`);
+      console.error(`stderr: ${stderr}`);
+      console.log(`Video downloaded successfully to ${outputPath}`);
+      res.status(200).send('Download successful');
+    });
+  } catch (error) {
+    console.error('Download error:', error);
+    res.status(500).send(`Download failed: ${error.message}`);
+  }
+});
+
 app.get('/generate-thumbnails', async (req, res) => {
   console.log('Generating thumbnails...');
   await generateThumbnails();
