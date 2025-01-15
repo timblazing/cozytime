@@ -6,7 +6,7 @@ services:
     ports:
       - "3005:3005"
     volumes:
-      - /root/YOUTUBE:/videos
+      - /root/YOUTUBE/compressed:/videos
     environment:
       - PORT=3005
       - VIDEOS_DIR=/videos
