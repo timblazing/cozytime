@@ -29,10 +29,10 @@ DIR_NAME=$(basename "$CURRENT_DIR")
 
 # Remove old directory
 echo "Removing old project directory..."
-if [ "$DIR_NAME" = "cozytime" ]; then
+if [ "$DIR_NAME" = "cozy" ]; then
     cd ..
 fi
-rm -rf cozytime
+rm -rf cozy
 
 # Clone repository
 echo "Cloning repository..."
