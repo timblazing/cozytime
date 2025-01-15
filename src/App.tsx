@@ -73,7 +73,7 @@ background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%
 background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%); text-white p-4 md:p-8">
 
       {selectedVideo && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
+        <div className="fixed inset-0 bg-gradient-to-b from-[#581c87] to-[#d8b4fe] z-50 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
           <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setSelectedVideo(null)}
@@ -112,7 +112,7 @@ background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%
             >
               <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform">
-                  <i className="fas fa-play w-12 h-12"></i>
+                  <i className="fas fa-play w-16 h-16"></i>
                 </div>
               </div>
               <img
