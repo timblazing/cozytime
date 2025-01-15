@@ -12,7 +12,16 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3005;
 const VIDEOS_DIR = process.env.VIDEOS_DIR || join(__dirname, '..', 'videos');
-const THUMBNAILS_DIR = join(__dirname, '..', 'public', 'thumbnails');
+const THUMBNAILS_DIR = join(__dirname, 'public', 'thumbnails');
+
+// Ensure thumbnails directory exists
+fs.mkdir(THUMBNAILS_DIR, { recursive: true }, (err) => {
+  if (err) {
+    console.error('Error creating thumbnails directory:', err);
+  } else {
+    console.log('Thumbnails directory created or already exists:', THUMBNAILS_DIR);
+  }
+});
 
 // Middleware
 app.use(cors());
@@ -52,7 +61,7 @@ app.get('/videos/:filename', (req, res) => {
 app.get('/thumbnail/:videoName', (req, res) => {
   const videoName = req.params.videoName;
   const videoPath = join(VIDEOS_DIR, videoName);
-  const thumbnailPath = join(THUMBNAILS_DIR, `public/thumbnails/${videoName.replace(/\.(mp4|webm|mov)$/i, '.jpg')}`);
+  const thumbnailPath = join(THUMBNAILS_DIR, `${videoName.replace(/\.(mp4|webm|mov)$/i, '.jpg')}`);
 
   // Check if thumbnail already exists
   if (fs.existsSync(thumbnailPath)) {
