@@ -118,10 +118,8 @@ function App() {
                     });
                     if (response.ok) {
                       console.log('Download initiated');
-                      // Optionally provide feedback to the user
                     } else {
                       console.error('Download failed');
-                      // Optionally handle the error
                     }
                   }}
                 >
