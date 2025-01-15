@@ -78,22 +78,21 @@ function App() {
       )}
 
       {selectedVideo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
-          <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
-            <video
-              ref={videoRef}
-              src={`/videos/${selectedVideo.path}`}
-              className="w-full rounded-lg shadow-lg"
-              controls
-              autoPlay
-              playsInline
-            >
-              Your browser does not support the video tag.
-            </video>
-            <h2 className="text-xl font-semibold mt-4">{selectedVideo.title}</h2>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
+            <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
+              <video
+                ref={videoRef}
+                src={`/videos/${selectedVideo?.path}`}
+                className="w-full rounded-lg shadow-lg"
+                controls
+                autoPlay
+                playsInline
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {isModalOpen && (
@@ -158,7 +157,6 @@ function App() {
                 className="w-full h-full object-cover"
               />
               <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black to-transparent">
-                <h3 className="text-sm font-medium truncate">{video.title}</h3>
               </div>
             </div>
           ))
@@ -166,7 +164,6 @@ function App() {
           <div className="col-span-full text-center py-12">
             <Film className="w-16 h-16 mx-auto mb-4 text-gray-600" />
             <p className="text-gray-600 text-lg">No videos found.</p>
-            <p className="text-gray-600 mt-2">Please add video files to the 'videos' directory.</p>
           </div>
         )}
       </div>
