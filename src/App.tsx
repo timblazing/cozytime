@@ -72,8 +72,8 @@ background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%
 background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%); text-white p-4 md:p-8">
 
       {selectedVideo && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
-          <div className="relative w-full max-w-4xl">
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
+          <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setSelectedVideo(null)}
               className="absolute -top-12 right-0 p-2 hover:text-gray-400"
