@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Film } from 'lucide-react';
 import { Video } from './types';
 
@@ -12,18 +12,25 @@ function App() {
     const fetchVideos = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/videos');
+        const response = await fetch('/videos');
         if (!response.ok) {
-          throw new Error('Failed to fetch videos');
+          throw new Error('Failed to fetch video list');
         }
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setVideos(data);
-        } else {
-          setVideos([]);
-        }
-      } catch (err) {
-        console.error('Error fetching videos:', err);
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const links = Array.from(doc.querySelectorAll('a'));
+        const videoFiles = links
+          .map(link => link.getAttribute('href'))
+          .filter(href => href && href.toLowerCase().match(/\.(mp4|webm|mov)$/i))
+          .map((file, index) => ({
+            id: String(index + 1),
+            title: file ? file.replace(/\.[^/.]+$/, '') : 'Unknown',
+            path: file || ''
+          }));
+        setVideos(videoFiles);
+      } catch (error) {
+        console.error('Error fetching videos:', error);
         setError('Failed to load videos');
         setVideos([]);
       } finally {
@@ -98,10 +105,10 @@ function App() {
                   <Film className="w-12 h-12" />
                 </div>
               </div>
-              <video
-                src={`/videos/${video.path}`}
+              <img
+                src={`/thumbnail/${video.path}`}
+                alt={`${video.title} Thumbnail`}
                 className="w-full h-full object-cover"
-                preload="metadata"
               />
               <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black to-transparent">
                 <h3 className="text-sm font-medium truncate">{video.title}</h3>
