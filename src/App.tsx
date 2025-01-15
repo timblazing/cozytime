@@ -111,8 +111,8 @@ function App() {
         ) : (
           <div className="col-span-full text-center py-12">
             <Film className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-            <p className="text-gray-400 text-lg">No videos found in the videos directory</p>
-            <p className="text-gray-500 mt-2">Add some video files to get started</p>
+            <p className="text-gray-400 text-lg">No videos found.</p>
+            <p className="text-gray-500 mt-2">Please add video files to the 'videos' directory.</p>
           </div>
         )}
       </div>

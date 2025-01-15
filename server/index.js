@@ -5,7 +5,7 @@ import cors from 'cors';
 import { access, constants } from 'fs/promises';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3005;
 const VIDEOS_DIR = process.env.VIDEOS_DIR || join(process.cwd(), 'videos');
 const DIST_DIR = join(process.cwd(), 'dist');
 
