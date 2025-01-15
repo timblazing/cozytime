@@ -98,20 +98,52 @@ app.post('/download', async (req, res) => {
 
   console.log(`Downloading video from: ${url} to ${outputPath}`);
 
-  try {
-    const command = `yt-dlp -f 'bestvideo[height<=720]+bestaudio/best[height<=720]' -o '${outputPath}' ${url}`;
-    const { exec } = await import('child_process');
+  const maxRetries = 3;
+  let retryCount = 0;
 
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`exec error: ${error}`);
-        return res.status(500).send(`Download failed: ${stderr}`);
-      }
-      console.log(`stdout: ${stdout}`);
-      console.error(`stderr: ${stderr}`);
-      console.log(`Video downloaded successfully to ${outputPath}`);
-      res.status(200).send('Download successful');
+  async function downloadVideo(retryAttempt) {
+    return new Promise(async (resolve, reject) => {
+      const command = `yt-dlp -f 'bestvideo[height<=720]+bestaudio/best[height<=720]' -o '${outputPath}' ${url}`;
+      const { exec } = await import('child_process');
+
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error (attempt ${retryAttempt}): ${error}`);
+          reject(stderr);
+        } else {
+          console.log(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
+          console.log(`Video downloaded successfully to ${outputPath}`);
+          resolve();
+        }
+      });
     });
+  }
+
+  async function attemptDownload() {
+    while (retryCount < maxRetries) {
+      retryCount++;
+      console.log(`Attempting download (retry ${retryCount}/${maxRetries})...`);
+      try {
+        await downloadVideo(retryCount);
+        return true; // Download successful
+      } catch (error) {
+        console.error(`Download failed (retry ${retryCount}/${maxRetries}): ${error}`);
+        if (retryCount < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds before retrying
+        }
+      }
+    }
+    return false; // Download failed after all retries
+  }
+
+  try {
+    const downloadSuccessful = await attemptDownload();
+    if (downloadSuccessful) {
+      res.status(200).send('Download successful');
+    } else {
+      res.status(500).send('Download failed after multiple retries.');
+    }
   } catch (error) {
     console.error('Download error:', error);
     res.status(500).send(`Download failed: ${error.message}`);
