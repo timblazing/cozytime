@@ -61,7 +61,7 @@ app.get('/videos/:filename', (req, res) => {
 app.get('/thumbnail/:videoName', (req, res) => {
   const videoName = req.params.videoName;
   const videoPath = join(VIDEOS_DIR, videoName);
-  const thumbnailPath = join(THUMBNAILS_DIR, `${videoName.replace(/\.(mp4|webm|mov)$/i, '.jpg')}`);
+  const thumbnailPath = join(VIDEOS_DIR, `${videoName.replace(/\.(mp4|webm|mov)$/i, '.jpg')}`);
 
   // Check if thumbnail already exists
   if (fs.existsSync(thumbnailPath)) {
@@ -103,7 +103,7 @@ const generateThumbnails = async () => {
     const videoFiles = files.filter(file => file.match(/\.(mp4|webm|mov)$/i) && !file.startsWith('.'));
     videoFiles.forEach(videoFile => {
       const videoPath = join(VIDEOS_DIR, videoFile);
-      const thumbnailPath = join(THUMBNAILS_DIR, `${videoFile.replace(/\.(mp4|webm|mov)$/i, '.jpg')}`);
+      const thumbnailPath = join(VIDEOS_DIR, `${videoFile.replace(/\.(mp4|webm|mov)$/i, '.jpg')}`);
 
       if (!fs.existsSync(thumbnailPath)) {
         ffmpeg(videoPath)
