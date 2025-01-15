@@ -1,5 +1,7 @@
+import { Download, Film } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { X, Film } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { Video } from './types';
 
 function App() {
@@ -7,6 +9,8 @@ function App() {
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -44,8 +48,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen background: rgb(88,28,135);
-background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%); text-white flex items-center justify-center">
+      <div className="min-h-screen loading-background text-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
       </div>
     );
@@ -53,12 +56,11 @@ background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%
 
   if (error) {
     return (
-      <div className="min-h-screen background: rgb(88,28,135);
-background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%); text-white flex items-center justify-center">
+      <div className="min-h-screen error-background text-white flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-400 text-xl">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="mt-4 px-4 py-2 bg-white text-gray-900 rounded hover:bg-gray-100"
           >
             Retry
@@ -69,8 +71,7 @@ background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%
   }
 
   return (
-    <div className="min-h-screen background: rgb(88,28,135);
-background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%); text-white p-4 md:p-8 relative">
+    <div className="min-h-screen bg-purple-300 text-white p-4 md:p-8 relative">
 
       {selectedVideo && (
         <div className="fixed inset-0 bg-black bg-opacity-80 z-40"></div>
@@ -79,13 +80,6 @@ background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%
       {selectedVideo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
           <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setSelectedVideo(null)}
-              className="absolute -top-12 right-0 p-2 hover:text-gray-400"
-              aria-label="Close video"
-            >
-              <X size={24} />
-            </button>
             <video
               ref={videoRef}
               src={`/videos/${selectedVideo.path}`}
@@ -102,22 +96,46 @@ background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={() => setIsModalOpen(false)}>
+            <div className="relative bg-white rounded-lg max-w-md w-full p-6 my-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  placeholder="Enter YouTube URL"
+                  className="flex-grow p-2 border border-gray-300 rounded text-black"
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                />
+                <button
+                  className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={() => console.log('Download button clicked with URL:', youtubeUrl)}
+                >
+                  Download
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {videos.length > 0 ? (
           videos.map((video) => (
             <div
               key={video.id}
               className="cursor-pointer group relative aspect-video rounded-lg overflow-hidden bg-gray-800"
               onClick={() => {
-                setSelectedVideo(video);
-                if (window.innerWidth < 768 && videoRef.current) {
-                  videoRef.current.requestFullscreen();
+                if (window.innerWidth < 768) {
+                  setSelectedVideo(video);
+                  const videoElement = document.querySelector(`[src="/videos/${video.path}"]`);
+                  if (videoElement) {
+                    (videoElement as HTMLVideoElement).requestFullscreen();
+                  }
+                } else {
+                  setSelectedVideo(video);
                 }
               }}
             >
-              <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform">
-                  <i className="fas fa-play w-16 h-16"></i>
-                </div>
+              <div className={`absolute inset-0 flex items-center justify-center transition-opacity ${window.innerWidth < 768 ? 'opacity-100' : 'opacity-0 group-hover:opacity-80 bg-black bg-opacity-40'}`}>
+                <FontAwesomeIcon icon={faPlay} className="text-white text-4xl" />
               </div>
               <img
                 src={`/thumbnail/${video.path}`}
@@ -132,10 +150,19 @@ background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%
         ) : (
           <div className="col-span-full text-center py-12">
             <Film className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-            <p className="text-gray-400 text-lg">No videos found.</p>
-            <p className="text-gray-500 mt-2">Please add video files to the 'videos' directory.</p>
+            <p className="text-gray-600 text-lg">No videos found.</p>
+            <p className="text-gray-600 mt-2">Please add video files to the 'videos' directory.</p>
           </div>
         )}
+      </div>
+      <div className="mt-8 flex justify-center">
+        <button
+          className="rounded-full bg-purple-500 hover:bg-purple-700 text-white font-bold w-12 h-12 flex items-center justify-center shadow-md"
+          aria-label="Add video"
+          onClick={() => setIsModalOpen(true)}
+        >
+          <Download size={18} />
+        </button>
       </div>
     </div>
   );

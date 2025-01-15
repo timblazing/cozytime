@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.loading-background {
+  background: rgb(88, 28, 135);
+  background: linear-gradient(0deg, rgba(88, 28, 135, 1) 0%, rgba(216, 180, 254, 1) 100%);
+}
+
+.error-background {
+  background: rgb(88, 28, 135);
+  background: linear-gradient(0deg, rgba(88, 28, 135, 1) 0%, rgba(216, 180, 254, 1) 100%);
+}
