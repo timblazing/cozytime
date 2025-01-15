@@ -22,21 +22,17 @@ app.use(express.static(join(__dirname, '..', 'dist')));
 app.use('/thumbnails', express.static(THUMBNAILS_DIR));
 
 // Serve video files
-app.use('/videos', express.static(VIDEOS_DIR));
-
-// Create videos directory if it doesn't exist
-try {
-  await mkdir(VIDEOS_DIR, { recursive: true });
-  console.log('Videos directory created or already exists at:', VIDEOS_DIR);
-} catch (error) {
-  console.error('Error creating videos directory:', error);
-}
-
-// Create thumbnails directory if it doesn't exist
-if (!fs.existsSync(THUMBNAILS_DIR)) {
-  fs.mkdirSync(THUMBNAILS_DIR, { recursive: true });
-  console.log('Thumbnails directory created at:', THUMBNAILS_DIR);
-}
+app.get('/videos', async (req, res) => {
+  try {
+    const files = await readdir(VIDEOS_DIR);
+    const videoFiles = files.filter(file => file.match(/\.(mp4|webm|mov)$/i));
+    const videoLinks = videoFiles.map(file => `<a href="/videos/${file}">${file}</a>`).join('');
+    res.send(`<h1>Available Videos</h1><ul>${videoLinks}</ul>`);
+  } catch (error) {
+    console.error('Error reading videos directory:', error);
+    res.status(500).send('Error loading videos');
+  }
+});
 
 // Endpoint to generate and serve video thumbnails
 app.get('/thumbnail/:videoName', (req, res) => {

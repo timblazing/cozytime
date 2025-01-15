@@ -21,12 +21,12 @@ function App() {
         const doc = parser.parseFromString(html, 'text/html');
         const links = Array.from(doc.querySelectorAll('a'));
         const videoFiles = links
-          .map(link => link.getAttribute('href'))
-          .filter(href => href && href.toLowerCase().match(/\.(mp4|webm|mov)$/i))
-          .map((file, index) => ({
+          .map(link => link.getAttribute('href')?.replace('/videos/', ''))
+          .filter(filename => filename && filename.toLowerCase().match(/\.(mp4|webm|mov)$/i))
+          .map((filename, index) => ({
             id: String(index + 1),
-            title: file ? file.replace(/\.[^/.]+$/, '') : 'Unknown',
-            path: file || ''
+            title: filename ? filename.replace(/\.[^/.]+$/, '') : 'Unknown',
+            path: filename || ''
           }));
         setVideos(videoFiles);
       } catch (error) {
