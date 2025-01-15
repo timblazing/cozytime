@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Film } from 'lucide-react';
 import { Video } from './types';
 
@@ -7,6 +7,7 @@ function App() {
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -82,6 +83,7 @@ background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%
               <X size={24} />
             </button>
             <video
+              ref={videoRef}
               src={`/videos/${selectedVideo.path}`}
               className="w-full rounded-lg shadow-lg"
               controls
@@ -101,7 +103,12 @@ background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%
             <div
               key={video.id}
               className="cursor-pointer group relative aspect-video rounded-lg overflow-hidden bg-gray-800"
-              onClick={() => setSelectedVideo(video)}
+              onClick={() => {
+                setSelectedVideo(video);
+                if (window.innerWidth < 768 && videoRef.current) {
+                  videoRef.current.requestFullscreen();
+                }
+              }}
             >
               <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform">
