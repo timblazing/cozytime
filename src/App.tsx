@@ -105,7 +105,7 @@ background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%
             >
               <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform">
-                  <Film className="w-12 h-12" />
+                  <i className="fas fa-play w-12 h-12"></i>
                 </div>
               </div>
               <img
