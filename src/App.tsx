@@ -70,10 +70,14 @@ background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%
 
   return (
     <div className="min-h-screen background: rgb(88,28,135);
-background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%); text-white p-4 md:p-8">
+background: linear-gradient(0deg, rgba(88,28,135,1) 0%, rgba(216,180,254,1) 100%); text-white p-4 md:p-8 relative">
 
       {selectedVideo && (
-        <div className="fixed inset-0 bg-gradient-to-b from-[#581c87] to-[#d8b4fe] z-50 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
+        <div className="fixed inset-0 bg-black bg-opacity-80 z-40"></div>
+      )}
+
+      {selectedVideo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
           <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setSelectedVideo(null)}
