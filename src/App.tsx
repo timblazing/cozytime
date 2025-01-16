@@ -1,5 +1,7 @@
 import { Download, Film } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import videojs from 'video.js';
+import 'video.js/dist/video-js.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { Video } from './types';
@@ -11,7 +13,8 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [youtubeUrl, setYoutubeUrl] = useState('');
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLDivElement>(null);
+  const player = useRef<videojs.Player | null>(null);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -19,7 +22,7 @@ function App() {
         setLoading(true);
         const response = await fetch('/videos');
         if (!response.ok) {
-          throw new Error('Failed to fetch video list');
+          throw new Error(`Failed to fetch video list: ${response.status} ${response.statusText}`);
         }
         const html = await response.text();
         const parser = new DOMParser();
@@ -36,7 +39,7 @@ function App() {
         setVideos(videoFiles);
       } catch (error) {
         console.error('Error fetching videos:', error);
-        setError('Failed to load videos');
+        setError('Failed to load videos. Please check your network connection and server configuration.');
         setVideos([]);
       } finally {
         setLoading(false);
@@ -45,6 +48,28 @@ function App() {
 
     fetchVideos();
   }, []);
+
+  useEffect(() => {
+    if (selectedVideo && videoRef.current) {
+      if (player.current) {
+        player.current.dispose();
+      }
+      player.current = videojs(videoRef.current, {
+        controls: true,
+        autoplay: true,
+        preload: 'auto',
+        sources: [{
+          src: `/videos/${selectedVideo.path}`,
+          type: 'video/mp4'
+        }]
+      });
+    }
+    return () => {
+      if (player.current) {
+        player.current.dispose();
+      }
+    };
+  }, [selectedVideo]);
 
   if (loading) {
     return (
@@ -72,28 +97,16 @@ function App() {
 
   return (
     <div className="min-h-screen bg-purple-300 text-white p-4 md:p-8 relative">
-
       {selectedVideo && (
         <div className="fixed inset-0 bg-black bg-opacity-80 z-40"></div>
       )}
-
       {selectedVideo && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
-            <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
-              <video
-                ref={videoRef}
-                src={`/videos/${selectedVideo?.path}`}
-                className="w-full rounded-lg shadow-lg"
-                controls
-                autoPlay
-                playsInline
-              >
-                Your browser does not support the video tag.
-              </video>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
+          <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
+            <div data-vjs-player ref={videoRef} className="vjs-default-skin video-js w-full rounded-lg shadow-lg"></div>
           </div>
-        )}
-
+        </div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={() => setIsModalOpen(false)}>
@@ -137,10 +150,6 @@ function App() {
               onClick={() => {
                 if (window.innerWidth < 768) {
                   setSelectedVideo(video);
-                  const videoElement = document.querySelector(`[src="/videos/${video.path}"]`);
-                  if (videoElement) {
-                    (videoElement as HTMLVideoElement).requestFullscreen();
-                  }
                 } else {
                   setSelectedVideo(video);
                 }
