@@ -106,46 +106,22 @@ app.post('/download', async (req, res) => {
   async function downloadVideo(retryAttempt) {
     return new Promise(async (resolve, reject) => {
       try {
-        const ytdl = await import('ytdl-core');
+        const youtubeDl = await import('youtube-dl-exec');
         
-        const options = {
-          requestOptions: {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-              'Accept-Language': 'en-US,en;q=0.5'
-            }
-          }
-        };
-
-        // Get video info first
-        const info = await ytdl.default.getInfo(url, options);
-        
-        // Find the best format under 720p
-        const formats = info.formats
-          .filter(format => format.height && format.height <= 720)
-          .sort((a, b) => b.height - a.height);
-
-        if (formats.length === 0) {
-          throw new Error('No suitable video format found');
-        }
-
-        const writeStream = fs.createWriteStream(outputPath);
-        const stream = ytdl.default.downloadFromInfo(info, {
-          ...options,
-          format: formats[0]
+        // Use youtube-dl-exec to download the video
+        await youtubeDl.default(url, {
+          output: outputPath,
+          format: 'bestvideo[height<=720]+bestaudio/best[height<=720]',
+          mergeOutputFormat: 'mp4',
+          noCheckCertificates: true,
+          preferFreeFormats: true,
+          addHeader: [
+            'referer:https://www.youtube.com',
+            'user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          ]
         });
 
-        stream.pipe(writeStream);
-
-        await new Promise((resolveStream, rejectStream) => {
-          writeStream.on('finish', () => {
-            console.log(`Video downloaded successfully to ${outputPath}`);
-            resolveStream();
-          });
-          writeStream.on('error', rejectStream);
-          stream.on('error', rejectStream);
-        });
+        console.log(`Video downloaded successfully to ${outputPath}`);
 
         resolve();
       } catch (error) {
