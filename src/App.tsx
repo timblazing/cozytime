@@ -1,9 +1,8 @@
 import { Film } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { Video } from './types';
-import logo from './favicon/android-chrome-192x192.png';
 
 function App() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -47,31 +46,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-purple-300 text-slate-900">
-      {/* Navbar */}
-      <nav className="bg-transparent">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <img 
-                src={logo}
-                alt="Cozytime Logo" 
-                className="h-8 w-8 mr-2"
-              />
-              <span className="text-xl font-semibold">Cozytime</span>
-            </div>
-            <a
-              href="https://download.reagan.baby"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-slate-900 transition-colors p-2"
-            >
-              <FontAwesomeIcon icon={faDownload} className="text-xl" />
-            </a>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
       <div className="p-4 md:p-8">
         {error && (
           <div className="text-center mb-8">
