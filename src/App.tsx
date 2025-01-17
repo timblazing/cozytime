@@ -7,7 +7,6 @@ import { Video } from './types';
 function App() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [youtubeUrl, setYoutubeUrl] = useState('');
@@ -15,7 +14,6 @@ function App() {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        setLoading(true);
         if (import.meta.env.DEV) {
           // Mock data for development
           setVideos([]);
@@ -42,8 +40,6 @@ function App() {
         console.error('Error fetching videos:', error);
         setError('Failed to load videos. Please check your network connection and server configuration.');
         setVideos([]);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -51,18 +47,10 @@ function App() {
   }, []);
 
 
-  if (loading) {
-    return (
-      <div className="min-h-screen loading-background text-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen error-background text-white flex items-center justify-center">
-        <div className="text-center">
+  return (
+    <div className="min-h-screen bg-gray-900 text-white p-4 md:p-8 relative">
+      {error && (
+        <div className="text-center mb-8">
           <p className="text-red-400 text-xl">{error}</p>
           <button
             onClick={() => window.location.reload()}
@@ -71,12 +59,7 @@ function App() {
             Retry
           </button>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-purple-300 text-white p-4 md:p-8 relative">
+      )}
       {selectedVideo && (
         <div className="fixed inset-0 bg-black bg-opacity-80 z-40"></div>
       )}
