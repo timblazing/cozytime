@@ -86,12 +86,9 @@ function App() {
                 </div>
                 <img
                   src={`/thumbnail/${video.path}`}
-                  alt={`${video.title} Thumbnail`}
+                  alt="Video thumbnail"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black to-transparent">
-                  <h3 className="text-white text-sm font-medium truncate">{video.title}</h3>
-                </div>
               </div>
             ))
           ) : (
