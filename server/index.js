@@ -107,10 +107,42 @@ app.post('/download', async (req, res) => {
     return new Promise(async (resolve, reject) => {
       // Get video info from Invidious first
       const videoId = new URL(url).searchParams.get('v');
-      const invidousUrl = `https://invidious.snopyta.org/api/v1/videos/${videoId}`;
+      const instances = [
+        'https://inv.vern.cc',
+        'https://invidious.protokolla.fi',
+        'https://vid.puffyan.us',
+        'https://yt.artemislena.eu'
+      ];
+
+      let data;
+      let error;
       
-      const response = await fetch(invidousUrl);
-      const data = await response.json();
+      for (const instance of instances) {
+        try {
+          const invidousUrl = `${instance}/api/v1/videos/${videoId}`;
+          console.log(`Trying Invidious instance: ${instance}`);
+          
+          const response = await fetch(invidousUrl);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const text = await response.text();
+          try {
+            data = JSON.parse(text);
+            break; // Successfully got data, exit loop
+          } catch (e) {
+            throw new Error(`Invalid JSON response: ${text.substring(0, 100)}...`);
+          }
+        } catch (e) {
+          error = e;
+          console.log(`Failed to fetch from ${instance}:`, e.message);
+          continue; // Try next instance
+        }
+      }
+
+      if (!data) {
+        throw new Error(`All Invidious instances failed. Last error: ${error?.message}`);
+      }
       
       // Find the best format URL under 720p
       const formatUrls = data.adaptiveFormats
