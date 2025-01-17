@@ -1,7 +1,5 @@
 import { Film } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
-import videojs, { VideoJsPlayer } from 'video.js';
-import 'video.js/dist/video-js.css';
+import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { Video } from './types';
@@ -13,8 +11,6 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [youtubeUrl, setYoutubeUrl] = useState('');
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const player = useRef<VideoJsPlayer | null>(null);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -54,33 +50,6 @@ function App() {
     fetchVideos();
   }, []);
 
-  useEffect(() => {
-    if (selectedVideo && videoRef.current) {
-      if (player.current) {
-        player.current.dispose();
-      }
-
-      const videoSource = `/videos/${selectedVideo.path}`;
-      const videoType = selectedVideo.path.toLowerCase().endsWith('.webm') ? 'video/webm' :
-                       selectedVideo.path.toLowerCase().endsWith('.mov') ? 'video/quicktime' :
-                       'video/mp4';
-
-      player.current = videojs(videoRef.current, {
-        controls: true,
-        autoplay: true,
-        preload: 'auto',
-        sources: [{
-          src: videoSource,
-          type: videoType
-        }]
-      });
-    }
-    return () => {
-      if (player.current) {
-        player.current.dispose();
-      }
-    };
-  }, [selectedVideo]);
 
   if (loading) {
     return (
@@ -114,7 +83,12 @@ function App() {
       {selectedVideo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
           <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
-            <video ref={videoRef} className="video-js vjs-default-skin vjs-big-play-centered w-full rounded-lg shadow-lg" />
+            <video 
+              src={`/videos/${selectedVideo.path}`}
+              className="w-full rounded-lg shadow-lg"
+              controls
+              autoPlay
+            />
           </div>
         </div>
       )}
