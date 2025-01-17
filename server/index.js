@@ -105,9 +105,25 @@ app.post('/download', async (req, res) => {
 
   async function downloadVideo(retryAttempt) {
     return new Promise(async (resolve, reject) => {
-      // Convert watch URL to embed URL
-      const embedUrl = url.replace('watch?v=', 'embed/').split('&')[0];
-      const command = `yt-dlp --no-warnings --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" --add-header "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" --add-header "Accept-Language: en-US,en;q=0.5" --add-header "DNT: 1" --add-header "Connection: keep-alive" --format "bv*[height<=720][ext=mp4]+ba[ext=m4a]/b[height<=720][ext=mp4]" --merge-output-format mp4 -o '${outputPath}' ${embedUrl}`;
+      // Get video info from Invidious first
+      const videoId = new URL(url).searchParams.get('v');
+      const invidousUrl = `https://invidious.snopyta.org/api/v1/videos/${videoId}`;
+      
+      const { default: fetch } = await import('node-fetch');
+      const response = await fetch(invidousUrl);
+      const data = await response.json();
+      
+      // Find the best format URL under 720p
+      const formatUrls = data.adaptiveFormats
+        .filter(f => f.height <= 720)
+        .sort((a, b) => b.height - a.height);
+      
+      if (formatUrls.length === 0) {
+        throw new Error('No suitable video format found');
+      }
+      
+      const videoUrl = formatUrls[0].url;
+      const command = `wget -O "${outputPath}" "${videoUrl}"`;
       const { exec } = await import('child_process');
 
       exec(command, (error, stdout, stderr) => {
