@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { Video } from './types';
+import logo from './favicon/android-chrome-192x192.png';
 
 function App() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -76,7 +77,7 @@ function App() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <img 
-                src="/favicon/android-chrome-192x192.png" 
+                src={logo}
                 alt="Cozytime Logo" 
                 className="h-8 w-8 mr-2"
               />
