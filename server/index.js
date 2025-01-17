@@ -112,7 +112,7 @@ app.post('/download', async (req, res) => {
         const { exec } = await import('child_process');
         
         // First get video info to find available formats
-        const videoInfoCommand = `yt-dlp --no-check-certificates --dump-json --no-warnings --extractor-retries 3 --file-access-retries 3 --fragment-retries 3 --extractor-args "youtube:player_skip_webpage=True,youtube:player_client=tv_embedded,youtube:skip_webpage=True" --mark-watched --no-call-home --no-embed-thumbnail --no-playlist --no-progress "${url}"`;
+        const videoInfoCommand = `youtube-dl --no-check-certificate --dump-json --no-warnings --no-playlist --no-progress --no-call-home --no-cache-dir "${url}"`;
         
         const videoInfo = await new Promise((resolve, reject) => {
           exec(videoInfoCommand, (error, stdout, stderr) => {
@@ -149,8 +149,8 @@ app.post('/download', async (req, res) => {
         const tempVideoPath = `${outputPath}.video.mp4`;
         const tempAudioPath = `${outputPath}.audio.m4a`;
 
-        const downloadVideo = `yt-dlp --no-check-certificates --format ${videoFormat.format_id} --progress --newline --extractor-retries 3 --file-access-retries 3 --fragment-retries 3 --extractor-args "youtube:player_skip_webpage=True,youtube:player_client=tv_embedded,youtube:skip_webpage=True" --mark-watched --no-call-home --no-embed-thumbnail --no-playlist "${url}" -o "${tempVideoPath}"`;
-        const downloadAudio = `yt-dlp --no-check-certificates --format ${audioFormat.format_id} --progress --newline --extractor-retries 3 --file-access-retries 3 --fragment-retries 3 --extractor-args "youtube:player_skip_webpage=True,youtube:player_client=tv_embedded,youtube:skip_webpage=True" --mark-watched --no-call-home --no-embed-thumbnail --no-playlist "${url}" -o "${tempAudioPath}"`;
+        const downloadVideo = `youtube-dl --no-check-certificate --format ${videoFormat.format_id} --no-playlist --no-progress --no-call-home --no-cache-dir "${url}" -o "${tempVideoPath}"`;
+        const downloadAudio = `youtube-dl --no-check-certificate --format ${audioFormat.format_id} --no-playlist --no-progress --no-call-home --no-cache-dir "${url}" -o "${tempAudioPath}"`;
 
         console.log('Downloading video...');
         await new Promise((resolve, reject) => {
