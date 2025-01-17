@@ -63,7 +63,7 @@ function App() {
               href="https://download.reagan.baby"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white transition-colors p-2 hover:text-gray-300"
+              className="text-slate-900 transition-colors p-2"
             >
               <FontAwesomeIcon icon={faDownload} className="text-xl" />
             </a>
