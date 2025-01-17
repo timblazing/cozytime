@@ -106,22 +106,47 @@ app.post('/download', async (req, res) => {
   async function downloadVideo(retryAttempt) {
     return new Promise(async (resolve, reject) => {
       try {
-        const youtubeDl = await import('youtube-dl-exec');
+        console.log('Starting download with yt-dlp...');
+        console.log('Output path:', outputPath);
+
+        const { exec } = await import('child_process');
         
-        // Use youtube-dl-exec to download the video
-        await youtubeDl.default(url, {
-          output: outputPath,
-          format: 'bestvideo[height<=720]+bestaudio/best[height<=720]',
-          mergeOutputFormat: 'mp4',
-          noCheckCertificates: true,
-          preferFreeFormats: true,
-          addHeader: [
-            'referer:https://www.youtube.com',
-            'user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-          ]
+        const command = `yt-dlp --no-check-certificate --prefer-insecure --force-ipv4 --format "bestvideo[height<=720]+bestaudio/best[height<=720]" --merge-output-format mp4 --progress --newline --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" --add-header "Accept-Language: en-US,en;q=0.9" --add-header "Sec-Fetch-Mode: navigate" --referer "https://www.youtube.com/" -o "${outputPath}" "${url}"`;
+
+        await new Promise((resolveExec, rejectExec) => {
+          const process = exec(command);
+          
+          process.stdout?.on('data', (data) => {
+            console.log('Download progress:', data.toString());
+          });
+
+          process.stderr?.on('data', (data) => {
+            console.error('Download error:', data.toString());
+          });
+
+          process.on('close', (code) => {
+            if (code === 0) {
+              // Verify file exists and has content
+              if (!fs.existsSync(outputPath)) {
+                rejectExec(new Error(`File was not created at ${outputPath}`));
+                return;
+              }
+              
+              const stats = fs.statSync(outputPath);
+              if (stats.size === 0) {
+                rejectExec(new Error('Downloaded file is empty'));
+                return;
+              }
+              
+              console.log(`File created successfully at ${outputPath} (${stats.size} bytes)`);
+              resolveExec();
+            } else {
+              rejectExec(new Error(`Process exited with code ${code}`));
+            }
+          });
         });
 
-        console.log(`Video downloaded successfully to ${outputPath}`);
+        console.log('Video downloaded successfully');
 
         resolve();
       } catch (error) {
