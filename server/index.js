@@ -105,20 +105,49 @@ app.post('/download', async (req, res) => {
 
   async function downloadVideo(retryAttempt) {
     return new Promise(async (resolve, reject) => {
-      const command = `yt-dlp --no-check-certificate --prefer-insecure --force-ipv4 --format "bv*[height<=720]+ba/b[height<=720]/best" --merge-output-format mp4 --no-warnings --progress --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" --add-header "Accept-Language: en-US,en;q=0.9" --add-header "Sec-Fetch-Mode: navigate" --referer "https://www.youtube.com/" -o "${outputPath}" "${url}"`;
-      const { exec } = await import('child_process');
-
-      exec(command, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`exec error (attempt ${retryAttempt}): ${error}`);
-          reject(stderr);
-        } else {
-          console.log(`stdout: ${stdout}`);
-          console.error(`stderr: ${stderr}`);
-          console.log(`Video downloaded successfully to ${outputPath}`);
-          resolve();
+      try {
+        // Get video info from YouTube API
+        const videoId = new URL(url).searchParams.get('v');
+        const apiKey = process.env.YOUTUBE_API_KEY;
+        if (!apiKey) {
+          throw new Error('YouTube API key not configured');
         }
-      });
+
+        // Get video details
+        const videoUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoId}&key=${apiKey}`;
+        const response = await fetch(videoUrl);
+        if (!response.ok) {
+          throw new Error(`YouTube API error: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        if (!data.items || data.items.length === 0) {
+          throw new Error('Video not found');
+        }
+
+        // Use ytdl-core which uses YouTube's innertube API
+        const ytdl = await import('ytdl-core');
+        const writeStream = fs.createWriteStream(outputPath);
+        
+        const stream = ytdl.default(url, {
+          quality: 'highest',
+          filter: format => format.height <= 720
+        });
+
+        stream.pipe(writeStream);
+
+        await new Promise((resolveStream, rejectStream) => {
+          writeStream.on('finish', resolveStream);
+          writeStream.on('error', rejectStream);
+          stream.on('error', rejectStream);
+        });
+
+        console.log(`Video downloaded successfully to ${outputPath}`);
+        resolve();
+      } catch (error) {
+        console.error(`Download error (attempt ${retryAttempt}):`, error);
+        reject(error);
+      }
     });
   }
 
