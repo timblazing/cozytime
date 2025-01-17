@@ -111,7 +111,19 @@ app.post('/download', async (req, res) => {
 
         const { exec } = await import('child_process');
         
-        const command = `yt-dlp --no-check-certificate --prefer-insecure --force-ipv4 --format "bestvideo[height<=720]+bestaudio/best[height<=720]" --merge-output-format mp4 --progress --newline --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" --add-header "Accept-Language: en-US,en;q=0.9" --add-header "Sec-Fetch-Mode: navigate" --referer "https://www.youtube.com/" -o "${outputPath}" "${url}"`;
+        // First update yt-dlp
+        await new Promise((resolve, reject) => {
+          exec('yt-dlp -U', (error, stdout, stderr) => {
+            if (error) {
+              console.warn('Warning: Could not update yt-dlp:', stderr);
+            } else {
+              console.log('yt-dlp update result:', stdout);
+            }
+            resolve();
+          });
+        });
+
+        const command = `yt-dlp --no-check-certificates --format "bv*[height<=720][ext=mp4]+ba[ext=m4a]/b[height<=720]/best[height<=720]" --merge-output-format mp4 --progress --newline --no-warnings --geo-bypass --extractor-args "youtube:player_client=android" --add-header "User-Agent: com.google.android.youtube/17.31.35 (Linux; U; Android 11)" --add-header "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" --add-header "Accept-Language: en-us,en;q=0.5" --add-header "Sec-Fetch-Mode: navigate" --add-header "Connection: keep-alive" -o "${outputPath}" "${url}"`;
 
         await new Promise((resolveExec, rejectExec) => {
           const process = exec(command);
