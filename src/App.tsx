@@ -1,7 +1,7 @@
 import { Film } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faDownload, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Video } from './types';
 import logo from './favicon/android-chrome-192x192.png';
 
@@ -10,6 +10,7 @@ function App() {
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [isDownloadDialogOpen, setIsDownloadDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -70,9 +71,9 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-purple-300 text-white">
+    <div className="min-h-screen bg-purple-300 text-slate-900">
       {/* Navbar */}
-      <nav className="bg-gray-900 shadow-lg">
+      <nav className="bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
@@ -83,27 +84,56 @@ function App() {
               />
               <span className="text-xl font-semibold">Cozytime</span>
             </div>
-            <div className="flex items-center space-x-2">
+            <button
+              className="text-slate-900 transition-colors p-2"
+              onClick={() => setIsDownloadDialogOpen(true)}
+            >
+              <FontAwesomeIcon icon={faDownload} className="text-xl" />
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      {/* Download Dialog */}
+      {isDownloadDialogOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setIsDownloadDialogOpen(false)}
+        >
+          <div 
+            className="bg-slate-900 rounded-2xl shadow-xl max-w-xl w-full relative p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
+              onClick={() => setIsDownloadDialogOpen(false)}
+            >
+              <FontAwesomeIcon icon={faTimes} className="text-xl" />
+            </button>
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-white mb-6">Download YouTube Video</h2>
               <input
                 type="text"
                 placeholder="Enter YouTube URL"
-                className="px-4 py-2 rounded-lg text-black w-64 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-3 rounded-xl text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-white/50 mb-6 placeholder-gray-500"
                 value={youtubeUrl}
                 onChange={(e) => setYoutubeUrl(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleDownload()}
               />
               <button
-                className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
-                onClick={handleDownload}
+                className="px-8 py-3 rounded-xl bg-white text-slate-900 font-bold hover:bg-white/90 transition-colors"
+                onClick={() => {
+                  handleDownload();
+                  setIsDownloadDialogOpen(false);
+                }}
               >
                 Download
               </button>
             </div>
           </div>
         </div>
-      </nav>
-
-      {/* Main Content */}
+      )}
       <div className="p-4 md:p-8">
         {error && (
           <div className="text-center mb-8">
@@ -154,8 +184,8 @@ function App() {
             ))
           ) : (
             <div className="col-span-full text-center py-12">
-              <Film className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-              <p className="text-gray-600 text-lg">No videos found.</p>
+              <Film className="w-16 h-16 mx-auto mb-4 text-slate-900" />
+              <p className="text-slate-900 text-lg">No videos found.</p>
             </div>
           )}
         </div>
