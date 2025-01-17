@@ -5,13 +5,18 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'http://localhost:3000',
-      '/videos': 'http://localhost:3000'
+      '/api': 'http://localhost:3005',
+      '/videos': 'http://localhost:3005',
+      '/thumbnail': 'http://localhost:3005'
     }
   },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: true
-  }
+  },
+  esbuild: {
+    jsxFactory: 'React.createElement',
+    jsxFragment: 'React.Fragment',
+  },
 });

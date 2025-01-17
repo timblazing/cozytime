@@ -1,6 +1,6 @@
-import { Download, Film } from 'lucide-react';
+import { Film } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import videojs from 'video.js';
+import videojs, { VideoJsPlayer } from 'video.js';
 import 'video.js/dist/video-js.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
@@ -13,30 +13,35 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [youtubeUrl, setYoutubeUrl] = useState('');
-  const videoRef = useRef<HTMLDivElement>(null);
-  const player = useRef<videojs.Player | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const player = useRef<VideoJsPlayer | null>(null);
 
   useEffect(() => {
     const fetchVideos = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/videos');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch video list: ${response.status} ${response.statusText}`);
+        if (import.meta.env.DEV) {
+          // Mock data for development
+          setVideos([]);
+        } else {
+          const response = await fetch('/videos');
+          if (!response.ok) {
+            throw new Error(`Failed to fetch video list: ${response.status} ${response.statusText}`);
+          }
+          const html = await response.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const links = Array.from(doc.querySelectorAll('a'));
+          const videoFiles = links
+            .map(link => link.getAttribute('href')?.replace('/videos/', ''))
+            .filter((filename): filename is string => !!filename && /\.(mp4|webm|mov)$/i.test(filename.toLowerCase()))
+            .map((filename, index) => ({
+              id: String(index + 1),
+              title: filename ? filename.replace(/\.[^/.]+$/, '') : 'Unknown',
+              path: filename
+            }));
+          setVideos(videoFiles);
         }
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const links = Array.from(doc.querySelectorAll('a'));
-        const videoFiles = links
-          .map(link => link.getAttribute('href')?.replace('/videos/', ''))
-          .filter((filename): filename is string => !!filename && /\.(mp4|webm|mov)$/i.test(filename.toLowerCase()))
-          .map((filename, index) => ({
-            id: String(index + 1),
-            title: filename ? filename.replace(/\.[^/.]+$/, '') : 'Unknown',
-            path: filename
-          }));
-        setVideos(videoFiles);
       } catch (error) {
         console.error('Error fetching videos:', error);
         setError('Failed to load videos. Please check your network connection and server configuration.');
@@ -54,13 +59,19 @@ function App() {
       if (player.current) {
         player.current.dispose();
       }
+
+      const videoSource = `/videos/${selectedVideo.path}`;
+      const videoType = selectedVideo.path.toLowerCase().endsWith('.webm') ? 'video/webm' :
+                       selectedVideo.path.toLowerCase().endsWith('.mov') ? 'video/quicktime' :
+                       'video/mp4';
+
       player.current = videojs(videoRef.current, {
         controls: true,
         autoplay: true,
         preload: 'auto',
         sources: [{
-          src: `/videos/${selectedVideo.path}`,
-          type: 'video/mp4'
+          src: videoSource,
+          type: videoType
         }]
       });
     }
@@ -103,7 +114,7 @@ function App() {
       {selectedVideo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
           <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
-            <div data-vjs-player ref={videoRef} className="vjs-default-skin video-js w-full rounded-lg shadow-lg"></div>
+            <video ref={videoRef} className="video-js vjs-default-skin vjs-big-play-centered w-full rounded-lg shadow-lg" />
           </div>
         </div>
       )}
@@ -147,13 +158,7 @@ function App() {
             <div
               key={video.id}
               className="cursor-pointer group relative aspect-video rounded-lg overflow-hidden bg-gray-800"
-              onClick={() => {
-                if (window.innerWidth < 768) {
-                  setSelectedVideo(video);
-                } else {
-                  setSelectedVideo(video);
-                }
-              }}
+              onClick={() => setSelectedVideo(video)}
             >
               <div className={`absolute inset-0 flex items-center justify-center transition-opacity ${window.innerWidth < 768 ? 'opacity-100' : 'opacity-0 group-hover:opacity-80 bg-black bg-opacity-40'}`}>
                 <FontAwesomeIcon icon={faPlay} className="text-white text-4xl" />
@@ -164,6 +169,7 @@ function App() {
                 className="w-full h-full object-cover"
               />
               <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black to-transparent">
+                <h3 className="text-white text-sm font-medium truncate">{video.title}</h3>
               </div>
             </div>
           ))
@@ -173,15 +179,6 @@ function App() {
             <p className="text-gray-600 text-lg">No videos found.</p>
           </div>
         )}
-      </div>
-      <div className="mt-8 flex justify-center">
-        <button
-          className="rounded-full bg-purple-500 hover:bg-purple-700 text-white font-bold w-12 h-12 flex items-center justify-center shadow-md"
-          aria-label="Add video"
-          onClick={() => setIsModalOpen(true)}
-        >
-          <Download size={18} />
-        </button>
       </div>
     </div>
   );
