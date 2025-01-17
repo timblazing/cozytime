@@ -109,7 +109,6 @@ app.post('/download', async (req, res) => {
       const videoId = new URL(url).searchParams.get('v');
       const invidousUrl = `https://invidious.snopyta.org/api/v1/videos/${videoId}`;
       
-      const { default: fetch } = await import('node-fetch');
       const response = await fetch(invidousUrl);
       const data = await response.json();
       
