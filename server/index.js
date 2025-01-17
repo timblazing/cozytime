@@ -111,54 +111,90 @@ app.post('/download', async (req, res) => {
 
         const { exec } = await import('child_process');
         
-        // First update yt-dlp
-        await new Promise((resolve, reject) => {
-          exec('yt-dlp -U', (error, stdout, stderr) => {
+        // First get video info to find available formats
+        const videoInfoCommand = `yt-dlp --no-check-certificates --dump-json --no-warnings --extractor-args "youtube:player_client=android" --add-header "User-Agent: com.google.android.youtube/17.31.35 (Linux; U; Android 11)" "${url}"`;
+        
+        const videoInfo = await new Promise((resolve, reject) => {
+          exec(videoInfoCommand, (error, stdout, stderr) => {
             if (error) {
-              console.warn('Warning: Could not update yt-dlp:', stderr);
-            } else {
-              console.log('yt-dlp update result:', stdout);
+              reject(error);
+              return;
             }
-            resolve();
-          });
-        });
-
-        const command = `yt-dlp --no-check-certificates --format "bv*[height<=720][ext=mp4]+ba[ext=m4a]/b[height<=720]/best[height<=720]" --merge-output-format mp4 --progress --newline --no-warnings --geo-bypass --extractor-args "youtube:player_client=android" --add-header "User-Agent: com.google.android.youtube/17.31.35 (Linux; U; Android 11)" --add-header "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" --add-header "Accept-Language: en-us,en;q=0.5" --add-header "Sec-Fetch-Mode: navigate" --add-header "Connection: keep-alive" -o "${outputPath}" "${url}"`;
-
-        await new Promise((resolveExec, rejectExec) => {
-          const process = exec(command);
-          
-          process.stdout?.on('data', (data) => {
-            console.log('Download progress:', data.toString());
-          });
-
-          process.stderr?.on('data', (data) => {
-            console.error('Download error:', data.toString());
-          });
-
-          process.on('close', (code) => {
-            if (code === 0) {
-              // Verify file exists and has content
-              if (!fs.existsSync(outputPath)) {
-                rejectExec(new Error(`File was not created at ${outputPath}`));
-                return;
-              }
-              
-              const stats = fs.statSync(outputPath);
-              if (stats.size === 0) {
-                rejectExec(new Error('Downloaded file is empty'));
-                return;
-              }
-              
-              console.log(`File created successfully at ${outputPath} (${stats.size} bytes)`);
-              resolveExec();
-            } else {
-              rejectExec(new Error(`Process exited with code ${code}`));
+            try {
+              resolve(JSON.parse(stdout));
+            } catch (e) {
+              reject(e);
             }
           });
         });
 
-        console.log('Video downloaded successfully');
+        console.log('Available formats:', videoInfo.formats.map(f => `${f.format_id}: ${f.ext} ${f.height}p`));
+
+        // Get best video and audio format IDs
+        const videoFormat = videoInfo.formats
+          .filter(f => f.height && f.height <= 720 && !f.acodec)
+          .sort((a, b) => b.height - a.height)[0];
+
+        const audioFormat = videoInfo.formats
+          .filter(f => f.acodec && f.acodec !== 'none' && !f.vcodec)
+          .sort((a, b) => b.abr - a.abr)[0];
+
+        if (!videoFormat || !audioFormat) {
+          throw new Error('Could not find suitable video/audio formats');
+        }
+
+        console.log(`Selected formats - Video: ${videoFormat.format_id} (${videoFormat.height}p), Audio: ${audioFormat.format_id}`);
+
+        // Download video and audio separately
+        const tempVideoPath = `${outputPath}.video.mp4`;
+        const tempAudioPath = `${outputPath}.audio.m4a`;
+
+        const downloadVideo = `yt-dlp --no-check-certificates --format ${videoFormat.format_id} --progress --newline "${url}" -o "${tempVideoPath}"`;
+        const downloadAudio = `yt-dlp --no-check-certificates --format ${audioFormat.format_id} --progress --newline "${url}" -o "${tempAudioPath}"`;
+
+        console.log('Downloading video...');
+        await new Promise((resolve, reject) => {
+          exec(downloadVideo, (error, stdout, stderr) => {
+            console.log(stdout);
+            if (error) reject(error);
+            else resolve();
+          });
+        });
+
+        console.log('Downloading audio...');
+        await new Promise((resolve, reject) => {
+          exec(downloadAudio, (error, stdout, stderr) => {
+            console.log(stdout);
+            if (error) reject(error);
+            else resolve();
+          });
+        });
+
+        console.log('Merging video and audio...');
+        const mergeCommand = `ffmpeg -i "${tempVideoPath}" -i "${tempAudioPath}" -c:v copy -c:a aac "${outputPath}"`;
+        
+        await new Promise((resolve, reject) => {
+          exec(mergeCommand, (error, stdout, stderr) => {
+            // Clean up temp files
+            fs.unlinkSync(tempVideoPath);
+            fs.unlinkSync(tempAudioPath);
+            
+            if (error) reject(error);
+            else resolve();
+          });
+        });
+
+        // Verify final file exists and has content
+        if (!fs.existsSync(outputPath)) {
+          throw new Error(`Final file was not created at ${outputPath}`);
+        }
+        
+        const stats = fs.statSync(outputPath);
+        if (stats.size === 0) {
+          throw new Error('Final file is empty');
+        }
+        
+        console.log(`Final file created successfully at ${outputPath} (${stats.size} bytes)`);
 
         resolve();
       } catch (error) {
