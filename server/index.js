@@ -105,7 +105,7 @@ app.post('/download', async (req, res) => {
 
   async function downloadVideo(retryAttempt) {
     return new Promise(async (resolve, reject) => {
-      const command = `yt-dlp -U && yt-dlp --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" --geo-bypass --extractor-args "youtube:player_client=ios" --format 'bestvideo[height=720][vcodec*=h264]+bestaudio/best[height<=720]' --merge-output-format mp4 -o '${outputPath}' ${url}`;
+      const command = `yt-dlp --no-warnings --user-agent "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/85.0.4183.109 Mobile/15E148 Safari/604.1" --geo-bypass --add-header "Accept-Language: en-US,en;q=0.9" --extractor-args "youtube:player_client=ios,web" --format 'bestvideo[height<=720]+bestaudio/best[height<=720]' --merge-output-format mp4 -o '${outputPath}' ${url}`;
       const { exec } = await import('child_process');
 
       exec(command, (error, stdout, stderr) => {
