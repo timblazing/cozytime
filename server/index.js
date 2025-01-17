@@ -112,7 +112,7 @@ app.post('/download', async (req, res) => {
         const { exec } = await import('child_process');
         
         // First get video info to find available formats
-        const videoInfoCommand = `yt-dlp --no-check-certificates --dump-json --no-warnings --extractor-args "youtube:player_client=android" --add-header "User-Agent: com.google.android.youtube/17.31.35 (Linux; U; Android 11)" "${url}"`;
+        const videoInfoCommand = `yt-dlp --no-check-certificates --dump-json --no-warnings --proxy socks5://proxy.scrapeops.io:5353 --extractor-args "youtube:player_client=web" --add-header "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" --add-header "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" --add-header "Accept-Language: en-US,en;q=0.5" --add-header "Accept-Encoding: gzip, deflate" --add-header "Connection: keep-alive" --add-header "Upgrade-Insecure-Requests: 1" --add-header "Sec-Fetch-Dest: document" --add-header "Sec-Fetch-Mode: navigate" --add-header "Sec-Fetch-Site: none" --add-header "Sec-Fetch-User: ?1" --add-header "DNT: 1" "${url}"`;
         
         const videoInfo = await new Promise((resolve, reject) => {
           exec(videoInfoCommand, (error, stdout, stderr) => {
@@ -149,8 +149,8 @@ app.post('/download', async (req, res) => {
         const tempVideoPath = `${outputPath}.video.mp4`;
         const tempAudioPath = `${outputPath}.audio.m4a`;
 
-        const downloadVideo = `yt-dlp --no-check-certificates --format ${videoFormat.format_id} --progress --newline "${url}" -o "${tempVideoPath}"`;
-        const downloadAudio = `yt-dlp --no-check-certificates --format ${audioFormat.format_id} --progress --newline "${url}" -o "${tempAudioPath}"`;
+        const downloadVideo = `yt-dlp --no-check-certificates --format ${videoFormat.format_id} --progress --newline --proxy socks5://proxy.scrapeops.io:5353 --add-header "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" --add-header "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" --add-header "Accept-Language: en-US,en;q=0.5" --add-header "Accept-Encoding: gzip, deflate" --add-header "Connection: keep-alive" --add-header "Upgrade-Insecure-Requests: 1" "${url}" -o "${tempVideoPath}"`;
+        const downloadAudio = `yt-dlp --no-check-certificates --format ${audioFormat.format_id} --progress --newline --proxy socks5://proxy.scrapeops.io:5353 --add-header "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" --add-header "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" --add-header "Accept-Language: en-US,en;q=0.5" --add-header "Accept-Encoding: gzip, deflate" --add-header "Connection: keep-alive" --add-header "Upgrade-Insecure-Requests: 1" "${url}" -o "${tempAudioPath}"`;
 
         console.log('Downloading video...');
         await new Promise((resolve, reject) => {
