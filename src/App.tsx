@@ -76,7 +76,7 @@ function App() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <img 
-                src="/src/favicon/android-chrome-192x192.png" 
+                src="/favicon/android-chrome-192x192.png" 
                 alt="Cozytime Logo" 
                 className="h-8 w-8 mr-2"
               />
