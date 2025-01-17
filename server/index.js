@@ -108,19 +108,33 @@ app.post('/download', async (req, res) => {
       try {
         const ytdl = await import('ytdl-core');
         
-        // Get video info first to validate URL and get best format
-        const info = await ytdl.default.getInfo(url);
-        const format = ytdl.default.chooseFormat(info.formats, {
-          quality: 'highestvideo',
-          filter: format => format.height <= 720
-        });
+        const options = {
+          requestOptions: {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.5'
+            }
+          }
+        };
 
-        if (!format) {
+        // Get video info first
+        const info = await ytdl.default.getInfo(url, options);
+        
+        // Find the best format under 720p
+        const formats = info.formats
+          .filter(format => format.height && format.height <= 720)
+          .sort((a, b) => b.height - a.height);
+
+        if (formats.length === 0) {
           throw new Error('No suitable video format found');
         }
 
         const writeStream = fs.createWriteStream(outputPath);
-        const stream = ytdl.default(url, { format });
+        const stream = ytdl.default.downloadFromInfo(info, {
+          ...options,
+          format: formats[0]
+        });
 
         stream.pipe(writeStream);
 
