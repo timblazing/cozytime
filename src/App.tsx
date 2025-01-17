@@ -1,7 +1,7 @@
 import { Film } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay, faDownload, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { Video } from './types';
 import logo from './favicon/android-chrome-192x192.png';
 
@@ -9,8 +9,6 @@ function App() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [youtubeUrl, setYoutubeUrl] = useState('');
-  const [isDownloadDialogOpen, setIsDownloadDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -47,29 +45,6 @@ function App() {
     fetchVideos();
   }, []);
 
-  const handleDownload = async () => {
-    if (!youtubeUrl.trim()) return;
-
-    try {
-      const response = await fetch('/download', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url: youtubeUrl }),
-      });
-      
-      if (response.ok) {
-        console.log('Download initiated');
-        setYoutubeUrl('');
-      } else {
-        console.error('Download failed');
-      }
-    } catch (error) {
-      console.error('Download error:', error);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-purple-300 text-slate-900">
       {/* Navbar */}
@@ -84,56 +59,19 @@ function App() {
               />
               <span className="text-xl font-semibold">Cozytime</span>
             </div>
-            <button
-              className="text-slate-900 transition-colors p-2"
-              onClick={() => setIsDownloadDialogOpen(true)}
+            <a
+              href="https://download.reagan.baby"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white transition-colors p-2 hover:text-gray-300"
             >
               <FontAwesomeIcon icon={faDownload} className="text-xl" />
-            </button>
+            </a>
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      {/* Download Dialog */}
-      {isDownloadDialogOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setIsDownloadDialogOpen(false)}
-        >
-          <div 
-            className="bg-slate-900 rounded-2xl shadow-xl max-w-xl w-full relative p-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
-              onClick={() => setIsDownloadDialogOpen(false)}
-            >
-              <FontAwesomeIcon icon={faTimes} className="text-xl" />
-            </button>
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-white mb-6">Download YouTube Video</h2>
-              <input
-                type="text"
-                placeholder="Enter YouTube URL"
-                className="w-full px-4 py-3 rounded-xl text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-white/50 mb-6 placeholder-gray-500"
-                value={youtubeUrl}
-                onChange={(e) => setYoutubeUrl(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleDownload()}
-              />
-              <button
-                className="px-8 py-3 rounded-xl bg-white text-slate-900 font-bold hover:bg-white/90 transition-colors"
-                onClick={() => {
-                  handleDownload();
-                  setIsDownloadDialogOpen(false);
-                }}
-              >
-                Download
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       <div className="p-4 md:p-8">
         {error && (
           <div className="text-center mb-8">
