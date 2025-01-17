@@ -48,7 +48,7 @@ function App() {
 
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 md:p-8 relative">
+    <div className="min-h-screen bg-purple-300 text-white p-4 md:p-8 relative">
       {error && (
         <div className="text-center mb-8">
           <p className="text-red-400 text-xl">{error}</p>
