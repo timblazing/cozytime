@@ -105,56 +105,7 @@ app.post('/download', async (req, res) => {
 
   async function downloadVideo(retryAttempt) {
     return new Promise(async (resolve, reject) => {
-      // Get video info from Invidious first
-      const videoId = new URL(url).searchParams.get('v');
-      const instances = [
-        'https://inv.vern.cc',
-        'https://invidious.protokolla.fi',
-        'https://vid.puffyan.us',
-        'https://yt.artemislena.eu'
-      ];
-
-      let data;
-      let error;
-      
-      for (const instance of instances) {
-        try {
-          const invidousUrl = `${instance}/api/v1/videos/${videoId}`;
-          console.log(`Trying Invidious instance: ${instance}`);
-          
-          const response = await fetch(invidousUrl);
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const text = await response.text();
-          try {
-            data = JSON.parse(text);
-            break; // Successfully got data, exit loop
-          } catch (e) {
-            throw new Error(`Invalid JSON response: ${text.substring(0, 100)}...`);
-          }
-        } catch (e) {
-          error = e;
-          console.log(`Failed to fetch from ${instance}:`, e.message);
-          continue; // Try next instance
-        }
-      }
-
-      if (!data) {
-        throw new Error(`All Invidious instances failed. Last error: ${error?.message}`);
-      }
-      
-      // Find the best format URL under 720p
-      const formatUrls = data.adaptiveFormats
-        .filter(f => f.height <= 720)
-        .sort((a, b) => b.height - a.height);
-      
-      if (formatUrls.length === 0) {
-        throw new Error('No suitable video format found');
-      }
-      
-      const videoUrl = formatUrls[0].url;
-      const command = `wget -O "${outputPath}" "${videoUrl}"`;
+      const command = `yt-dlp --no-check-certificate --prefer-insecure --force-ipv4 --format "bv*[height<=720]+ba/b[height<=720]/best" --merge-output-format mp4 --no-warnings --progress --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" --add-header "Accept-Language: en-US,en;q=0.9" --add-header "Sec-Fetch-Mode: navigate" --referer "https://www.youtube.com/" -o "${outputPath}" "${url}"`;
       const { exec } = await import('child_process');
 
       exec(command, (error, stdout, stderr) => {
