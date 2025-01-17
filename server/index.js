@@ -106,43 +106,33 @@ app.post('/download', async (req, res) => {
   async function downloadVideo(retryAttempt) {
     return new Promise(async (resolve, reject) => {
       try {
-        // Get video info from YouTube API
-        const videoId = new URL(url).searchParams.get('v');
-        const apiKey = process.env.YOUTUBE_API_KEY;
-        if (!apiKey) {
-          throw new Error('YouTube API key not configured');
-        }
-
-        // Get video details
-        const videoUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoId}&key=${apiKey}`;
-        const response = await fetch(videoUrl);
-        if (!response.ok) {
-          throw new Error(`YouTube API error: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        if (!data.items || data.items.length === 0) {
-          throw new Error('Video not found');
-        }
-
-        // Use ytdl-core which uses YouTube's innertube API
         const ytdl = await import('ytdl-core');
-        const writeStream = fs.createWriteStream(outputPath);
         
-        const stream = ytdl.default(url, {
-          quality: 'highest',
+        // Get video info first to validate URL and get best format
+        const info = await ytdl.default.getInfo(url);
+        const format = ytdl.default.chooseFormat(info.formats, {
+          quality: 'highestvideo',
           filter: format => format.height <= 720
         });
+
+        if (!format) {
+          throw new Error('No suitable video format found');
+        }
+
+        const writeStream = fs.createWriteStream(outputPath);
+        const stream = ytdl.default(url, { format });
 
         stream.pipe(writeStream);
 
         await new Promise((resolveStream, rejectStream) => {
-          writeStream.on('finish', resolveStream);
+          writeStream.on('finish', () => {
+            console.log(`Video downloaded successfully to ${outputPath}`);
+            resolveStream();
+          });
           writeStream.on('error', rejectStream);
           stream.on('error', rejectStream);
         });
 
-        console.log(`Video downloaded successfully to ${outputPath}`);
         resolve();
       } catch (error) {
         console.error(`Download error (attempt ${retryAttempt}):`, error);
