@@ -1,25 +1,30 @@
-FROM node:20-slim
+# Build stage
+FROM node:20-alpine as build
 
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
 
-# Install system dependencies including Python before npm install
-RUN apt-get update && \
-    apt-get install -y ffmpeg python3 curl && \
-    curl -L https://github.com/ytdl-org/youtube-dl/releases/latest/download/youtube-dl -o /usr/local/bin/youtube-dl && \
-    chmod a+rx /usr/local/bin/youtube-dl && \
-    ln -s /usr/bin/python3 /usr/bin/python
+# Install dependencies
+RUN npm ci
 
-# Set Python path and install Node dependencies
-ENV PYTHON=/usr/bin/python3
-RUN npm install
-
+# Copy source files
 COPY . .
 
 # Build the application
 RUN npm run build
 
-EXPOSE 3005
+# Production stage
+FROM nginx:alpine
 
-CMD ["node", "server/index.js"]
+# Copy built files from build stage
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port
+EXPOSE 3003
+
+CMD ["nginx", "-g", "daemon off;"]

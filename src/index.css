@@ -1,13 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Chivo:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-.loading-background {
-  background: rgb(88, 28, 135);
-  background: linear-gradient(0deg, rgba(88, 28, 135, 1) 0%, rgba(216, 180, 254, 1) 100%);
+@layer base {
+  html {
+    font-family: 'Chivo', sans-serif;
+  }
 }
 
-.error-background {
-  background: rgb(88, 28, 135);
-  background: linear-gradient(0deg, rgba(88, 28, 135, 1) 0%, rgba(216, 180, 254, 1) 100%);
+html, body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: rgb(9 9 11);
+}
+
+body {
+  min-height: 100vh;
 }

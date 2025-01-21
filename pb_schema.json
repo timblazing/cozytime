@@ -1,0 +1,42 @@
+{
+  "collections": [
+    {
+      "name": "videos",
+      "type": "base",
+      "system": false,
+      "schema": [
+        {
+          "name": "title",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "thumbnail_url",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "video_url",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "views",
+          "type": "number",
+          "required": false,
+          "default": 0
+        },
+        {
+          "name": "duration",
+          "type": "number",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

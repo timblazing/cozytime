@@ -1,13 +1,10 @@
+version: '3.8'
 
 services:
-  video-player:
-    container_name: cozytime
-    build: .
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "3005:3005"
-    volumes:
-      - /root/1TB/YOUTUBE:/videos
-    environment:
-      - PORT=3005
-      - VIDEOS_DIR=/videos
-      - YOUTUBE_API_KEY=AIzaSyCLGy2bDCSvakDqmawiEzFNmtoCRz4LhuA
+      - "3003:3003"
+    restart: unless-stopped

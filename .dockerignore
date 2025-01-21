@@ -1,40 +1,19 @@
-# Dependencies
 node_modules
 npm-debug.log
 yarn-debug.log
 yarn-error.log
-
-# Development
+.git
+.gitignore
 .env
 .env.local
 .env.development
 .env.test
 .env.production
-
-# Version control
-.git
-.gitignore
-
-# Build output
+.DS_Store
 dist
 build
 coverage
-
-# Editor and OS files
 .vscode
 .idea
-*.swp
-*.swo
-.DS_Store
-Thumbs.db
-
-# Project specific
-videos/*
-!videos/.gitkeep
-server/public/thumbnails/*
-!server/public/thumbnails/.gitkeep
-
-# Testing
-__tests__
-*.test.js
-*.spec.js
+*.log
+README.md
