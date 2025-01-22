@@ -5,7 +5,11 @@ import type { Video } from '../types/video';
 import { getYouTubeVideoId } from '../utils/youtube';
 import { AnimatedPage } from '../components/AnimatedPage';
 
-export function Watch() {
+interface WatchProps {
+  setSearchQuery: (query: string) => void;
+}
+
+export function Watch({ setSearchQuery }: WatchProps) {
   const { id } = useParams<{ id: string }>();
   const [video, setVideo] = useState<Video | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,7 +71,11 @@ export function Watch() {
               {video.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="inline-block px-2 py-0.5 bg-zinc-800 text-zinc-300 rounded-full text-xs"
+                  onClick={() => {
+                    setSearchQuery(tag);
+                    window.history.pushState({}, '', '/');
+                  }}
+                  className="inline-block px-2 py-1 text-zinc-400 rounded-md text-xs cursor-pointer hover:text-white border border-zinc-700 hover:border-zinc-600"
                 >
                   {tag}
                 </span>

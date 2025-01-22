@@ -1,30 +1,33 @@
 import { useState, useEffect } from 'react';
 import { pb } from '../lib/pocketbase';
+import { ClientResponseError } from 'pocketbase';
 import type { Video } from '../types/video';
 
 export function useVideos(searchQuery: string) {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchVideos() {
-      try {
-        const records = await pb.collection('videos').getList(1, 50, {
-          sort: '-created',
-        });
-        setVideos(records.items.map(item => ({
-          id: item.id,
-          title: item.title,
-          video_url: item.video_url,
-          created: item.created,
-          tags: item.tags || []
-        })));
-      } catch (error) {
-        console.error('Error fetching videos:', error);
+  async function fetchVideos() {
+    try {
+      const records = await pb.collection('videos').getList(1, 50);
+      setVideos(records.items.map(item => ({
+        id: item.id,
+        title: item.title,
+        video_url: item.video_url,
+        created: item.created,
+        tags: item.tags || []
+      })));
+    } catch (error) {
+      if (error instanceof ClientResponseError) {
+        console.error('Error fetching videos:', error.message);
+      } else if (error instanceof Error) {
+        console.error('Error fetching videos:', error.message);
       }
-      setLoading(false);
     }
+    setLoading(false);
+  }
 
+  useEffect(() => {
     fetchVideos();
   }, []);
 
@@ -36,5 +39,10 @@ export function useVideos(searchQuery: string) {
            video.tags.some(tag => tag.toLowerCase().includes(query));
   });
 
-  return { videos: filteredVideos, loading };
+  const refetchVideos = () => {
+    setLoading(true);
+    fetchVideos();
+  };
+
+  return { videos: filteredVideos, loading, refetchVideos };
 }

@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import type { Video } from '../types/video';
 import { getYouTubeThumbnail } from '../utils/youtube';
@@ -6,9 +5,11 @@ import { getYouTubeThumbnail } from '../utils/youtube';
 interface VideoCardProps {
   video: Video;
   index: number;
+  setSearchQuery: (query: string) => void;
+  onWatch: () => void;
 }
 
-export function VideoCard({ video, index }: VideoCardProps) {
+export function VideoCard({ video, index, setSearchQuery, onWatch }: VideoCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -19,28 +20,29 @@ export function VideoCard({ video, index }: VideoCardProps) {
         ease: "easeOut"
       }}
     >
-      <Link to={`/watch/${video.id}`}>
-      <img
-        src={getYouTubeThumbnail(video.video_url)}
-        alt={video.title}
-        className="w-full aspect-video object-cover rounded-lg"
-      />
-      <div className="mt-2">
-        <h3 className="font-medium text-base line-clamp-2">
-          {video.title}
-        </h3>
-        <div className="flex flex-wrap gap-1 mt-1">
-          {video.tags.map((tag, index) => (
-            <span
-              key={index}
-              className="inline-block px-2 py-0.5 bg-zinc-800 text-zinc-300 rounded-full text-xs"
-            >
-              {tag}
-            </span>
-          ))}
+      <button onClick={onWatch} className="block w-full text-left">
+        <img
+          src={getYouTubeThumbnail(video.video_url)}
+          alt={video.title}
+          className="w-full aspect-video object-cover rounded-lg"
+        />
+        <div className="mt-2">
+          <h3 className="font-medium text-base line-clamp-2">
+            {video.title}
+          </h3>
         </div>
+      </button>
+      <div className="flex flex-wrap gap-1 mt-1">
+        {video.tags.map((tag, index) => (
+          <span
+            key={index}
+            onClick={() => setSearchQuery(tag)}
+            className="inline-block px-2 py-1 text-zinc-400 rounded-md text-xs cursor-pointer hover:text-white border border-zinc-700 hover:border-zinc-600"
+          >
+            {tag}
+          </span>
+        ))}
       </div>
-      </Link>
     </motion.div>
   );
 }
