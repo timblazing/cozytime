@@ -1,4 +1,5 @@
-import { Plus, X } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from './ui/dialog';
 import { pb } from '../lib/pocketbase';
 import { ClientResponseError } from 'pocketbase';
@@ -18,23 +19,28 @@ const AVAILABLE_TAGS = [
   'Light Rain',
   'Indoors',
   'Nature'
-];
+] as const;
 
-export function AddVideoDialog({ refetchVideos }: { refetchVideos: () => void }) {
+interface AddVideoDialogProps {
+  refetchVideos: () => void;
+  className?: string;
+}
+
+export function AddVideoDialog({ refetchVideos, className = '' }: AddVideoDialogProps) {
   const [open, setOpen] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="p-2 hover:bg-zinc-800 rounded-full">
-          <Plus className="h-5 w-5" />
+        <button className={`p-2 hover:bg-zinc-800 rounded-full ${className}`}>
+          <FontAwesomeIcon icon={faPlus} className="text-lg text-white" />
         </button>
       </DialogTrigger>
       <DialogContent>
         <div className="mx-1 p-6 bg-zinc-900 rounded-xl relative">
         <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none">
-          <X className="h-4 w-4 text-white" />
+          <FontAwesomeIcon icon={faXmark} className="text-lg text-white" />
           <span className="sr-only">Close</span>
         </DialogClose>
         <DialogHeader>
@@ -98,7 +104,7 @@ export function AddVideoDialog({ refetchVideos }: { refetchVideos: () => void })
             </label>
             <div className="relative">
               <div className="flex flex-wrap gap-2">
-                {AVAILABLE_TAGS.map(tag => (
+                {AVAILABLE_TAGS.map((tag: string) => (
                   <button
                     key={tag}
                     type="button"
