@@ -1,28 +1,11 @@
 import { SearchBar } from './SearchBar';
 import { AddVideoDialog } from './AddVideoDialog';
 import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 
 interface NavbarProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   refetchVideos: () => void;
-}
-
-function LogoutButton({ className }: { className?: string }) {
-  const { logout } = useAuth();
-  
-  return (
-    <button
-      onClick={logout}
-      className={`p-2 text-white ${className}`}
-      title="Logout"
-    >
-      <FontAwesomeIcon icon={faRightFromBracket} className="text-lg" />
-    </button>
-  );
 }
 
 export function Navbar({ searchQuery, setSearchQuery, refetchVideos }: NavbarProps) {
@@ -56,7 +39,6 @@ export function Navbar({ searchQuery, setSearchQuery, refetchVideos }: NavbarPro
               refetchVideos={refetchVideos} 
               className={`md:opacity-100 ${isSearchExpanded ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}
             />
-            <LogoutButton className={`md:opacity-100 ${isSearchExpanded ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`} />
           </div>
         </div>
       </div>

@@ -1,8 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from './ui/dialog';
-import { pb } from '../lib/pocketbase';
-import { ClientResponseError } from 'pocketbase';
+import { addVideo } from '../data/videos';
 import { useState } from 'react';
 
 const AVAILABLE_TAGS = [
@@ -54,23 +53,15 @@ export function AddVideoDialog({ refetchVideos, className = '' }: AddVideoDialog
           const form = e.target as HTMLFormElement;
           const formData = new FormData(form);
           
-          try {
-            await pb.collection('videos').create({
-              title: formData.get('title'),
-              video_url: formData.get('video_url'),
-              tags: selectedTags
-            });
-            form.reset();
-            setSelectedTags([]);
-            setOpen(false);
-            refetchVideos();
-          } catch (error) {
-            if (error instanceof ClientResponseError) {
-              console.error('Error creating video:', error.message);
-            } else if (error instanceof Error) {
-              console.error('Error creating video:', error.message);
-            }
-          }
+          addVideo({
+            title: formData.get('title') as string,
+            video_url: formData.get('video_url') as string,
+            tags: selectedTags
+          });
+          form.reset();
+          setSelectedTags([]);
+          setOpen(false);
+          refetchVideos();
         }} className="space-y-4 mt-4">
           <div>
             <label htmlFor="video_url" className="block text-sm font-medium mb-1 text-white">
