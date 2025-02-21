@@ -9,16 +9,17 @@ export function SplashScreen({ onVisibilityChange }: SplashScreenProps) {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
+    // Hide navbar when splash screen mounts
+    onVisibilityChange?.(false);
+
     const timer = setTimeout(() => {
       setIsVisible(false);
+      // Show navbar when splash screen disappears
       onVisibilityChange?.(true);
     }, 2000); // Show splash screen for 2 seconds
 
-    return () => {
-      clearTimeout(timer);
-      onVisibilityChange?.(false);
-    };
-  }, []);
+    return () => clearTimeout(timer);
+  }, [onVisibilityChange]);
 
   return (
     <AnimatePresence>

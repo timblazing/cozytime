@@ -10,7 +10,7 @@ function AppContent() {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const { videos, loading, refetchVideos } = useVideos(searchQuery);
-  const [showNavbar, setShowNavbar] = useState(true);
+  const [showNavbar, setShowNavbar] = useState(false);
 
   return (
     <>
