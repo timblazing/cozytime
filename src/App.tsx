@@ -33,7 +33,7 @@ function AppContent() {
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route
-              path="/"
+              path="/cozytime"
               element={
                 <Home videos={videos} loading={loading} setSearchQuery={setSearchQuery} />
               }
