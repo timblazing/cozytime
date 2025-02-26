@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { Layout } from './components/Layout';
@@ -14,6 +15,14 @@ function AppContent() {
 
   return (
     <>
+      {/* Inject Umami Tracking Script */}
+        <Helmet>
+      <script
+        async
+        src="https://umami.blasinga.me/script.js"
+        data-website-id="0884ff1b-90d7-407e-a394-9f0bb756a46f"
+      ></script>
+    </Helmet>
       <SplashScreen onVisibilityChange={setShowNavbar} />
       <Layout 
         showNavbar={showNavbar}
