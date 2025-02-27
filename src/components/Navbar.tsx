@@ -16,7 +16,7 @@ export function Navbar({ searchQuery, setSearchQuery, refetchVideos }: NavbarPro
       <div className="container mx-auto px-4 md:px-4">
         <div className="flex items-center justify-between h-20 md:h-14">
           <a 
-            href="/" 
+            href="/cozytime/" 
             className={`flex items-center whitespace-nowrap transition-opacity duration-200 ${
               isSearchExpanded ? 'md:opacity-100 opacity-0 w-0 overflow-hidden' : 'opacity-100'
             }`}
