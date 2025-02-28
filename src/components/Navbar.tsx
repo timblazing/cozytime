@@ -84,11 +84,12 @@ export function Navbar({ searchQuery, setSearchQuery, refetchVideos }: NavbarPro
                 onExpandChange={setIsSearchExpanded}
               />
             </div>
-            <AddVideoDialog 
-              refetchVideos={handleVideoAdded} 
-              className={`md:opacity-100 ${isSearchExpanded ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}
-              disabled={!canAddVideo}
-            />
+            {canAddVideo ? (
+              <AddVideoDialog 
+                refetchVideos={handleVideoAdded} 
+                className={`md:opacity-100 ${isSearchExpanded ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}
+              />
+            ) : null}
           </div>
         </div>
       </div>
