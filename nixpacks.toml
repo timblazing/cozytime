@@ -1,0 +1,19 @@
+[
+phases.setup
+]
+nixPkgs = ["nodejs", "nginx"]
+
+[
+phases.build
+]
+cmds = ["npm ci", "npm run build"]
+
+[
+start
+]
+cmd = "nginx -g 'daemon off;'"
+
+[
+nixpacks
+]
+port = 3003
