@@ -1,0 +1,10 @@
+{
+  "build": {
+    "type": "nixpacks",
+    "publishDir": "dist"
+  },
+  "deploy": {
+    "startCommand": "nginx -c /app/nginx.conf -g 'daemon off;'",
+    "port": 3003
+  }
+}
