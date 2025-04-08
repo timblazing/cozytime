@@ -17,11 +17,6 @@ function AppContent() {
     <>
       {/* Inject Umami Tracking Script */}
         <Helmet>
-      <script
-        async
-        src="https://umami.blasinga.me/script.js"
-        data-website-id="0884ff1b-90d7-407e-a394-9f0bb756a46f"
-      ></script>
     </Helmet>
       <SplashScreen onVisibilityChange={setShowNavbar} />
       <Layout 
