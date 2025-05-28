@@ -1,6 +1,6 @@
 services:
   cozy:
-    container_name: cozy
+    container_name: cozytime
     build:
       context: .
       dockerfile: Dockerfile
